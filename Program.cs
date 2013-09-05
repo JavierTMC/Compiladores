@@ -44,24 +44,24 @@ namespace Interprete
 
         static List<string> SplitOriginalInput(string input)
         {
-            List<string> simbol = new List<string>();
+            List<string> symbol = new List<string>();
             string aux = string.Empty;
 
             for (int i = 0; i < input.Length; i++)
             {
                 if (input[i] == '+' || input[i] == '-')
                 {
-                    simbol.Add(aux.Trim());
+                    symbol.Add(aux.Trim());
                     aux = string.Empty;
-                    simbol.Add(input[i].ToString());
+                    symbol.Add(input[i].ToString());
                 }
                 else
                 {
                     aux += input[i];
                 }
             }
-            simbol.Add(aux.Trim());
-            return simbol;
+            symbol.Add(aux.Trim());
+            return symbol;
             
         }//end split Original Input
 
@@ -75,6 +75,6 @@ namespace Interprete
                 result = first - second;
 
             return result;
-        }// end Opertation
+        }// end Operation
     }
 }
