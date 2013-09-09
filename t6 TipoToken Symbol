@@ -1,0 +1,77 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace TipoTokenSymbol_t6
+{
+    class Program
+    {
+
+        static LinkedList<Token> LaLista = new LinkedList<Token>();
+
+        static void Main(string[] args)
+        {
+
+            string input;
+            Console.WriteLine("Input: ");
+            input = Console.ReadLine();
+
+            Tokenizer(input.Replace(" ",string.Empty));
+
+            foreach (var token in LaLista)
+            {
+                if(token.Tipo != TipoToken.NULL)
+                Console.WriteLine("Tipo:{0}\tValor:{1}",token.Tipo,token.Valor.ToString());
+            }
+
+            Console.ReadKey(true);
+
+        }
+
+        static bool Tokenizer(string ElString)
+        {
+            LaLista.AddLast(new Token(TipoToken.NULL, ' '));
+
+            for (int i = 0; i <= ElString.Length - 1; i++)
+            {
+                char ElChar = ElString[i];
+
+                if (ElChar == '+' || ElChar == '-' || ElChar == '*' || ElChar == '/' || ElChar == '=')
+                    LaLista.AddLast(new Token(TipoToken.OP, ElChar));
+                else if (ElChar == '(')
+                    LaLista.AddLast(new Token(TipoToken.OPEN_PARENS, ElChar));
+                else if (ElChar == ')')
+                    LaLista.AddLast(new Token(TipoToken.CLOSING_PARENS, ElChar));
+                else if (Regex.IsMatch(ElChar.ToString(), @"[0-9]"))
+                    LaLista.AddLast(new Token(TipoToken.NUM, ElChar));
+                else if (Regex.IsMatch(ElChar.ToString(),@"[a-z A-Z ? _ ! # $ % ^ & ` ~ ]"))
+                    LaLista.AddLast(new Token(TipoToken.SYMBOL,ElChar));
+                else return false;
+            }
+            LaLista.AddLast(new Token(TipoToken.NULL, ' '));
+            CurrentToken = LaLista.First;
+
+            return true;
+        }
+
+       
+    class Token
+    {
+        public TipoToken Tipo { get; set; }
+        public char Valor { get; set; }
+
+        public Token(TipoToken tipo, char valor)
+        {
+            Tipo = tipo;
+            Valor = valor;
+        }
+    }
+
+    enum TipoToken
+    {
+        NUM, OP, NULL, OPEN_PARENS, CLOSING_PARENS, SYMBOL
+    }
+
+}
