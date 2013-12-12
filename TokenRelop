@@ -1,0 +1,98 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+
+namespace Tokens
+{
+    class Program
+    {
+        static LinkedList<Token> LaLista = new LinkedList<Token>();
+
+        static void Main(string[] args)
+        {
+
+            string input;
+            Console.WriteLine("Input: ");
+            input = Console.ReadLine();
+
+            Tokenizer(input.Replace(" ",string.Empty));
+
+            foreach (var token in LaLista)
+            {
+                if(token.Tipo != TipoToken.NULL)
+                Console.WriteLine("Tipo:{0}\tValor:{1}",token.Tipo,token.Valor.ToString());
+            }
+
+            Console.ReadKey(true);
+
+        }
+
+        static bool Tokenizer(string ElString)
+        {
+            LaLista.AddLast(new Token(TipoToken.NULL, null));
+
+            for (int i = 0; i <= ElString.Length - 1; i++)
+            {
+                String ElChar = ElString[i].ToString();
+
+                if (ElChar == "+" || ElChar == "-" || ElChar == "*" || ElChar == "/" || ElChar == "=")
+                {
+                    if(ElString[i+1].ToString() == "=")
+                    {
+                        LaLista.AddLast(new Token(TipoToken.RELOP, "=="));
+                        i++;
+                    }
+                    else
+                        LaLista.AddLast(new Token(TipoToken.OP, ElChar));
+                }
+                else if (ElChar == ">" || ElChar == "<")
+                {
+                    if (ElString[i + 1].ToString() == "=")
+                    {
+                        ElChar = ElString[i].ToString() + "=";
+                        i++;
+                    }
+                    LaLista.AddLast(new Token(TipoToken.RELOP, ElChar));
+                }
+                else if (ElChar == "!" && ElString[i + 1].ToString() == "=")
+                {
+                    LaLista.AddLast(new Token(TipoToken.RELOP, ElChar + ElString[i + 1].ToString()));
+                    i++;
+                }
+                else if (ElChar == "(")
+                    LaLista.AddLast(new Token(TipoToken.OPEN_PARENS, ElChar));
+                else if (ElChar == ")")
+                    LaLista.AddLast(new Token(TipoToken.CLOSING_PARENS, ElChar));
+                else if (Regex.IsMatch(ElChar.ToString(), @"[0-9]"))
+                    LaLista.AddLast(new Token(TipoToken.NUM, ElChar));
+                else if (Regex.IsMatch(ElChar.ToString(), @"[a-z A-Z ? _ ! # $ % ^ & ` ~ ]"))
+                    LaLista.AddLast(new Token(TipoToken.SYMBOL, ElChar));
+                else return false;
+            }
+            LaLista.AddLast(new Token(TipoToken.NULL, null));
+
+            return true;
+        }
+
+       
+    class Token
+    {
+        public TipoToken Tipo { get; set; }
+        public string Valor { get; set; }
+
+        public Token(TipoToken tipo, string valor)
+        {
+            Tipo = tipo;
+            Valor = valor;
+        }
+    }
+
+    enum TipoToken
+    {
+        NUM, OP, NULL, OPEN_PARENS, CLOSING_PARENS, SYMBOL, RELOP
+    }
+    }
+}
