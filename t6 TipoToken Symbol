@@ -40,6 +40,8 @@ namespace TipoTokenSymbol_t6
 
                 if (ElChar == '+' || ElChar == '-' || ElChar == '*' || ElChar == '/' || ElChar == '=')
                     LaLista.AddLast(new Token(TipoToken.OP, ElChar));
+                else if(ElChar == '>' || ElChar == '<' || ElChar == '>=' || ElChar == '<=' || ElChar == "!=' || ElChar == '==')
+                    LaLista.AddLast(new Token(TipoToke.RELOP, ElChar));
                 else if (ElChar == '(')
                     LaLista.AddLast(new Token(TipoToken.OPEN_PARENS, ElChar));
                 else if (ElChar == ')')
@@ -71,7 +73,7 @@ namespace TipoTokenSymbol_t6
 
     enum TipoToken
     {
-        NUM, OP, NULL, OPEN_PARENS, CLOSING_PARENS, SYMBOL
+        NUM, OP, NULL, OPEN_PARENS, CLOSING_PARENS, SYMBOL, RELOP
     }
 
 }
