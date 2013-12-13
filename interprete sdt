@@ -1,0 +1,167 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace InfixToPostfix_sdt
+{
+    class Program
+    {
+        //Lista de tokens
+        static LinkedList<Token> LaLista = new LinkedList<Token>();
+        static LinkedListNode<Token> CurrentToken = null;
+        static Stack<string> tokenStack = new Stack<string>();
+
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Syntax Directed Translation(SDT) ");
+            while (true)
+            {
+                string ElString = string.Empty;
+                //Introducir datos
+                Console.Write("\nOperación Infix: ");
+                ElString = Console.ReadLine();
+
+                Tokenizer(ElString);
+                sdt();
+                Console.WriteLine("Result: "+ tokenStack.Pop());
+                LaLista.Clear();
+                tokenStack.Clear();             
+            }
+        }
+
+        // expr -> term term_rest
+        // term_rest -> + expr || - expr || epsilon
+        // term - > num
+        // num -> 0 .. 9
+
+        static string sdt()
+        {
+            return expr();
+        }
+
+        static string expr()
+        {
+            string t = term();
+            return term_rest(ref t);
+        }
+
+        static string term()
+        {
+            Token t = match(TipoToken.NUM);
+            tokenStack.Push(t.Valor.ToString());
+            return t.Valor.ToString();
+        }
+
+        static string term_rest(ref string e)
+        {
+            int uno, dos;
+            Token t = match(TipoToken.OP);
+            if (t == null)
+                return e;
+            else if (t.Valor == "+")
+            {
+                uno = Convert.ToInt32(tokenStack.Pop());
+                e += " +" + term();
+                dos = Convert.ToInt32(tokenStack.Pop());
+                tokenStack.Push(AddOperation(uno, dos));
+                return term_rest(ref e);
+            }
+            else if (t.Valor == "-")
+            {
+                uno = Convert.ToInt32(tokenStack.Pop());
+                e += " -" + term();
+                dos = Convert.ToInt32(tokenStack.Pop());
+                tokenStack.Push(SubOperation(uno, dos));
+                return term_rest(ref e);
+            }
+            else
+                return "Error in the conversion";
+        }
+
+        static Token match(TipoToken tipo)
+        {
+            Token t = GetNextToken().Value;
+            if (tipo == t.Tipo)
+            {
+                return t;
+            }
+            return null;
+        }
+
+        static void Tokenizer(string ElString)
+        {
+            LaLista.AddLast(new Token(TipoToken.NULL, null));
+
+            for (int i = 0; i <= ElString.Length - 1; i++)
+            {
+                string ElChar = ElString[i].ToString();
+
+                if (ElChar == "+" || ElChar == "-")
+                {
+                    LaLista.AddLast(new Token(TipoToken.OP, ElChar));
+                }
+
+                else if (Regex.IsMatch(ElChar.ToString(), @"[0-9]"))
+                {
+                    string number = string.Empty;
+                    while (true)
+                    {
+                        if (Regex.IsMatch(ElString[i].ToString(), @"[0-9]"))
+                        {
+                            number += ElString[i].ToString();
+                            i++;
+                            if (i == ElString.Length)
+                            { i--; break; }
+                        }
+                        else
+                        {
+                            i--;
+                            break;
+                        }
+                    }
+                    LaLista.AddLast(new Token(TipoToken.NUM, number));
+                }
+
+            }
+            LaLista.AddLast(new Token(TipoToken.NULL, null));
+            CurrentToken = LaLista.First;
+        }
+
+        static LinkedListNode<Token> GetNextToken()
+        {
+            CurrentToken = CurrentToken.Next;
+            return CurrentToken;
+        }
+
+        static string AddOperation(int uno, int dos)
+        {
+            int result = uno + dos;
+            return result.ToString();
+        }
+
+        static string SubOperation(int uno, int dos)
+        {
+            int result = uno - dos;
+            return result.ToString();
+        }
+    }//finaliza clase programa
+
+    class Token
+    {
+        public TipoToken Tipo { get; set; }
+        public string Valor { get; set; }
+
+        public Token(TipoToken tipo, string valor)
+        {
+            Tipo = tipo;
+            Valor = valor;
+        }
+    }
+
+    enum TipoToken
+    {
+        NUM, OP, NULL
+    }
+}
